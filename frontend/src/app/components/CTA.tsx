@@ -41,7 +41,7 @@ export function CTA() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg"
+                className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-6 text-lg group"
               >
                 Contact Us
               </Button>
