@@ -3,7 +3,6 @@ import { Hero } from "./components/Hero";
 import { Features } from "./components/Features";
 import { JobCategories } from "./components/JobCategories";
 import { HowItWorks } from "./components/HowItWorks";
-import { Testimonials } from "./components/Testimonials";
 import { CTA } from "./components/CTA";
 import { Footer } from "./components/Footer";
 
@@ -16,7 +15,6 @@ export default function App() {
         <Features />
         <JobCategories />
         <HowItWorks />
-        <Testimonials />
         <CTA />
       </main>
       <Footer />
