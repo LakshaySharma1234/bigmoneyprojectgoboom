@@ -77,7 +77,7 @@ export function JobCategories() {
                   </p>
                   <Button 
                     variant="outline" 
-                    className="border-white text-white hover:bg-white hover:text-black w-fit group-hover:border-orange-500 group-hover:text-orange-500"
+                    className="border-white text-black w-fit group-hover:border-orange-500 group-hover:text-orange-500"
                   >
                     View Jobs
                   </Button>

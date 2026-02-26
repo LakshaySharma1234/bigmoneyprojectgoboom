@@ -44,10 +44,10 @@ export function Hero() {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-black px-8 py-6 text-lg"
-            >
+              className="border-black text-black px-8 py-6 text-lg"
+              >
               Browse Jobs
-            </Button>
+          </Button>
           </div>
 
           {/* Stats */}
