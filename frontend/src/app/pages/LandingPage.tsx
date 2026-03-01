@@ -1,0 +1,23 @@
+import { Header } from "../components/Header";
+import { Hero } from "../components/Hero";
+import { Features } from "../components/Features";
+import { JobCategories } from "../components/JobCategories";
+import { HowItWorks } from "../components/HowItWorks";
+import { CTA } from "../components/CTA";
+import { Footer } from "../components/Footer";
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-white">
+      <Header />
+      <main className="pt-16">
+        <Hero />
+        <Features />
+        <JobCategories />
+        <HowItWorks />
+        <CTA />
+      </main>
+      <Footer />
+    </div>
+  );
+}
