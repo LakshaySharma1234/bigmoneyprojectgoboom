@@ -1,9 +1,19 @@
-import { useState } from "react";
-import { Mail, Lock, Phone } from "lucide-react";
-import { Link } from "react-router";
+import { useState, type FormEvent } from "react";
+import { Mail, Lock, Phone, UserCircle, Building2 } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { getDefaultRouteByRole, setAuthSession, type UserRole } from "../auth/session";
 import { Button } from "./ui/button";
 
 export function SignIn() {
+  const navigate = useNavigate();
+  const [userType, setUserType] = useState<UserRole>("staff");
+
+  const handleSignIn = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAuthSession(userType);
+    navigate(getDefaultRouteByRole(userType), { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
@@ -21,7 +31,55 @@ export function SignIn() {
 
         {/* Sign In Form */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <form className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <button
+              type="button"
+              onClick={() => setUserType("staff")}
+              className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
+                userType === "staff"
+                  ? "border-orange-500 bg-orange-50"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              <UserCircle
+                className={`w-8 h-8 mb-2 ${
+                  userType === "staff" ? "text-orange-500" : "text-gray-400"
+                }`}
+              />
+              <span
+                className={`font-semibold ${
+                  userType === "staff" ? "text-orange-500" : "text-gray-600"
+                }`}
+              >
+                Staff
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setUserType("employer")}
+              className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
+                userType === "employer"
+                  ? "border-orange-500 bg-orange-50"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              <Building2
+                className={`w-8 h-8 mb-2 ${
+                  userType === "employer" ? "text-orange-500" : "text-gray-400"
+                }`}
+              />
+              <span
+                className={`font-semibold ${
+                  userType === "employer" ? "text-orange-500" : "text-gray-600"
+                }`}
+              >
+                Employer
+              </span>
+            </button>
+          </div>
+
+          <form className="space-y-4" onSubmit={handleSignIn}>
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
