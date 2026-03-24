@@ -1,27 +1,75 @@
-import { useNavigate } from "react-router";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { clearAuthSession } from "../auth/session";
 import { Button } from "../components/ui/button";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { CreateJobForm } from "../components/CreateJobForm";
+import { MyJobsList } from "../components/MyJobsList";
+import { BookingList } from "../components/BookingList";
+import { api } from "../services/api";
 
 export default function EmployerDashboardPage() {
   const navigate = useNavigate();
+  const [jobsVersion, setJobsVersion] = useState(0);
 
   const handleSignOut = () => {
     clearAuthSession();
     navigate("/signin", { replace: true });
   };
 
+  const handleCreateJob = async (jobData) => {
+    try {
+      await api.post("/jobs/", jobData);
+      setJobsVersion((current) => current + 1);
+      alert("Job created successfully!");
+    } catch (error) {
+      alert(`Error creating job: ${error.message}`);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-orange-50 flex items-center justify-center px-4">
-      <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Employer Dashboard</h1>
-        <p className="text-gray-600 mb-8">
-          Employer pages are protected under `/employer/*`. This section can be expanded when employer
-          features are ready.
-        </p>
-        <Button onClick={handleSignOut} className="bg-orange-500 hover:bg-orange-600 text-white">
-          Sign Out
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Employer Dashboard
+          </h1>
+          <Button onClick={handleSignOut} variant="outline">
+            Sign Out
+          </Button>
+        </div>
+      </header>
+      <main>
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <Tabs defaultValue="create-job">
+            <TabsList>
+              <TabsTrigger value="create-job">Create Job</TabsTrigger>
+              <TabsTrigger value="my-jobs">My Jobs</TabsTrigger>
+              <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            </TabsList>
+            <TabsContent value="create-job">
+              <div className="bg-white p-8 rounded-lg shadow">
+                <CreateJobForm onSubmit={handleCreateJob} />
+              </div>
+            </TabsContent>
+            <TabsContent value="my-jobs">
+              <div className="bg-white p-8 rounded-lg shadow">
+                <MyJobsList key={jobsVersion} />
+              </div>
+            </TabsContent>
+            <TabsContent value="bookings">
+              <div className="bg-white p-8 rounded-lg shadow">
+                <BookingList />
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
     </div>
   );
 }
