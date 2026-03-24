@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet } from "react-router-dom";
 import { getAuthSession, getDefaultRouteByRole, type UserRole } from "../../auth/session";
 
 type RequireRoleRouteProps = {
@@ -20,9 +20,9 @@ function RequireRoleRoute({ allowedRole }: RequireRoleRouteProps) {
 }
 
 export function StaffOnlyRoute() {
-  return <RequireRoleRoute allowedRole="staff" />;
+  return <RequireRoleRoute allowedRole="worker" />;
 }
 
 export function EmployerOnlyRoute() {
-  return <RequireRoleRoute allowedRole="employer" />;
+  return <RequireRoleRoute allowedRole="client" />;
 }

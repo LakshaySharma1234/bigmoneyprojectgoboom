@@ -2,19 +2,20 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
 
-class ApplicationBase(BaseModel):
+class BookingBase(BaseModel):
     job_id: int
+    worker_id: int
     status: Optional[str] = "pending"
 
-class ApplicationCreate(ApplicationBase):
-    worker_id: Optional[int] = None
-    
-class Application(ApplicationBase):
+class BookingCreate(BookingBase):
+    pass
+
+class Booking(BookingBase):
     id: int
-    worker_id: int
-    applied_at: datetime
+    created_at: datetime
+    updated_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
-class ApplicationStatusUpdate(BaseModel):
+class BookingStatusUpdate(BaseModel):
     status: str

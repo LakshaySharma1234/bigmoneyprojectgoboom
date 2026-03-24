@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet } from "react-router-dom";
 import { getAuthSession, getDefaultRouteByRole } from "../../auth/session";
 
 export function PublicOnlyRoute() {

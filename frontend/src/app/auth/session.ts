@@ -1,8 +1,9 @@
-export type UserRole = "staff" | "employer";
+export type UserRole = "worker" | "client";
 
 type AuthSession = {
   isAuthenticated: boolean;
   role: UserRole;
+  token: string;
 };
 
 const AUTH_SESSION_KEY = "caterstaff_auth_session";
@@ -19,7 +20,8 @@ export function getAuthSession(): AuthSession | null {
       typeof parsed !== "object" ||
       parsed === null ||
       parsed.isAuthenticated !== true ||
-      (parsed.role !== "staff" && parsed.role !== "employer")
+      !parsed.token ||
+      (parsed.role !== "worker" && parsed.role !== "client")
     ) {
       return null;
     }
@@ -30,10 +32,11 @@ export function getAuthSession(): AuthSession | null {
   }
 }
 
-export function setAuthSession(role: UserRole) {
+export function setAuthSession(role: UserRole, token: string) {
   const session: AuthSession = {
     isAuthenticated: true,
     role,
+    token,
   };
 
   localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
@@ -44,5 +47,5 @@ export function clearAuthSession() {
 }
 
 export function getDefaultRouteByRole(role: UserRole): string {
-  return role === "staff" ? "/staff/dashboard" : "/employer/dashboard";
+  return role === "worker" ? "/staff/dashboard" : "/employer/dashboard";
 }

@@ -1,51 +1,49 @@
-from fastapi import HTTPException
-from passlib.context import CryptContext
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-
-from ..models.user import User
+from ..crud import user as crud_user
 from ..schemas.user import UserCreate, UserLogin
+from ..core.security import get_password_hash, verify_password, create_access_token
+from datetime import timedelta
 
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+ROLE_ALIASES = {
+    "worker": "worker",
+    "staff": "worker",
+    "client": "client",
+    "employer": "client",
+}
 
 
-def _hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-
-def _verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
+def normalize_role(role: str) -> str:
+    normalized_role = ROLE_ALIASES.get(role.strip().lower())
+    if not normalized_role:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Role must be one of: worker, staff, client, employer",
+        )
+    return normalized_role
 
 def register_user(db: Session, user: UserCreate):
-    existing_user = db.query(User).filter(User.email == user.email).first()
+    existing_user = crud_user.get_user_by_email(db, user.email)
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    db_user = User(
-        email=user.email,
-        hashed_password=_hash_password(user.password),
-        role=user.role,
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-
-    return {
-        "id": db_user.id,
-        "email": db_user.email,
-        "role": db_user.role,
-        "message": "User registered successfully",
-    }
-
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered",
+        )
+    user.role = normalize_role(user.role)
+    return crud_user.create_user(db=db, user=user)
 
 def login_user(db: Session, user: UserLogin):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if not db_user or not _verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-
-    return {
-        "id": db_user.id,
-        "email": db_user.email,
-        "role": db_user.role,
-        "message": "Login successful",
-    }
+    db_user = crud_user.get_user_by_email(db, user.email)
+    if not db_user or not verify_password(user.password, db_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": db_user.email, "role": db_user.role}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}

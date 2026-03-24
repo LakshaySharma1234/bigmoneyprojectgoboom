@@ -1,10 +1,54 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { UserCircle, Building2, Mail, Lock, Phone } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
+import { getDefaultRouteByRole, setAuthSession } from "../auth/session";
 import { Button } from "./ui/button";
+import { api } from "../services/api";
+
+type SignUpRole = "worker" | "client";
 
 export function SignUp() {
-  const [userType, setUserType] = useState<"staff" | "employer">("staff");
+  const navigate = useNavigate();
+  const [userType, setUserType] = useState<SignUpRole>("worker");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignUp = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrorMessage("");
+    setIsLoading(true);
+
+    try {
+      await api.post("/auth/register", {
+        first_name: firstName,
+        last_name: lastName,
+        email: email.trim().toLowerCase(),
+        phone_number: phone,
+        location: location,
+        password,
+        role: userType,
+      });
+
+      const loginResponse = await api.post("/auth/login", {
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      setAuthSession(userType, loginResponse.access_token);
+      navigate(getDefaultRouteByRole(userType), { replace: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Sign up failed. Please try again.";
+      setErrorMessage(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -25,21 +69,22 @@ export function SignUp() {
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <div className="grid grid-cols-2 gap-3 mb-6">
             <button
-              onClick={() => setUserType("staff")}
+              type="button"
+              onClick={() => setUserType("worker")}
               className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
-                userType === "staff"
+                userType === "worker"
                   ? "border-orange-500 bg-orange-50"
                   : "border-gray-200 hover:border-gray-300"
               }`}
             >
               <UserCircle
                 className={`w-8 h-8 mb-2 ${
-                  userType === "staff" ? "text-orange-500" : "text-gray-400"
+                  userType === "worker" ? "text-orange-500" : "text-gray-400"
                 }`}
               />
               <span
                 className={`font-semibold ${
-                  userType === "staff" ? "text-orange-500" : "text-gray-600"
+                  userType === "worker" ? "text-orange-500" : "text-gray-600"
                 }`}
               >
                 Staff
@@ -48,21 +93,22 @@ export function SignUp() {
             </button>
 
             <button
-              onClick={() => setUserType("employer")}
+              type="button"
+              onClick={() => setUserType("client")}
               className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
-                userType === "employer"
+                userType === "client"
                   ? "border-orange-500 bg-orange-50"
                   : "border-gray-200 hover:border-gray-300"
               }`}
             >
               <Building2
                 className={`w-8 h-8 mb-2 ${
-                  userType === "employer" ? "text-orange-500" : "text-gray-400"
+                  userType === "client" ? "text-orange-500" : "text-gray-400"
                 }`}
               />
               <span
                 className={`font-semibold ${
-                  userType === "employer" ? "text-orange-500" : "text-gray-600"
+                  userType === "client" ? "text-orange-500" : "text-gray-600"
                 }`}
               >
                 Employer
@@ -72,7 +118,45 @@ export function SignUp() {
           </div>
 
           {/* Sign Up Form */}
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSignUp}>
+            {/* First Name Field */}
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                First Name
+              </label>
+              <div className="relative">
+                <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  id="firstName"
+                  value={firstName}
+                  onChange={(event) => setFirstName(event.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="John"
+                />
+              </div>
+            </div>
+
+            {/* Last Name Field */}
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                Last Name
+              </label>
+              <div className="relative">
+                <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  id="lastName"
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Doe"
+                />
+              </div>
+            </div>
+
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -83,8 +167,49 @@ export function SignUp() {
                 <input
                   type="email"
                   id="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            {/* Phone Number Field */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="+91 12345 67890"
+                />
+              </div>
+            </div>
+
+            {/* Location Field */}
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                Location
+              </label>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  id="location"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Mumbai, India"
                 />
               </div>
             </div>
@@ -99,18 +224,24 @@ export function SignUp() {
                 <input
                   type="password"
                   id="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="Create a password"
                 />
               </div>
             </div>
 
+            {errorMessage ? <p className="text-sm text-red-500">{errorMessage}</p> : null}
+
             {/* Sign Up Button */}
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white py-6 text-lg font-semibold"
             >
-              Sign Up
+              {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
 

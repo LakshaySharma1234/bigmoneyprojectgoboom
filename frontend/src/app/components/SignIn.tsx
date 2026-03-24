@@ -1,17 +1,45 @@
 import { useState, type FormEvent } from "react";
-import { Mail, Lock, Phone, UserCircle, Building2 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Mail, Lock, Phone } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { getDefaultRouteByRole, setAuthSession, type UserRole } from "../auth/session";
 import { Button } from "./ui/button";
+import { api } from "../services/api";
+import { jwtDecode } from "jwt-decode";
 
 export function SignIn() {
   const navigate = useNavigate();
-  const [userType, setUserType] = useState<UserRole>("staff");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignIn = (event: FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setAuthSession(userType);
-    navigate(getDefaultRouteByRole(userType), { replace: true });
+    setErrorMessage("");
+    setIsLoading(true);
+
+    try {
+      const response = await api.post("/auth/login", {
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      const token = response.access_token;
+      const decodedToken: { sub: string; role: UserRole } = jwtDecode(token);
+      const role = decodedToken.role;
+
+      if (role !== "worker" && role !== "client") {
+        throw new Error("Unexpected user role returned by server.");
+      }
+
+      setAuthSession(role, token);
+      navigate(getDefaultRouteByRole(role), { replace: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Invalid email or password.";
+      setErrorMessage(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,54 +59,6 @@ export function SignIn() {
 
         {/* Sign In Form */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <button
-              type="button"
-              onClick={() => setUserType("staff")}
-              className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
-                userType === "staff"
-                  ? "border-orange-500 bg-orange-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-            >
-              <UserCircle
-                className={`w-8 h-8 mb-2 ${
-                  userType === "staff" ? "text-orange-500" : "text-gray-400"
-                }`}
-              />
-              <span
-                className={`font-semibold ${
-                  userType === "staff" ? "text-orange-500" : "text-gray-600"
-                }`}
-              >
-                Staff
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setUserType("employer")}
-              className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
-                userType === "employer"
-                  ? "border-orange-500 bg-orange-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-            >
-              <Building2
-                className={`w-8 h-8 mb-2 ${
-                  userType === "employer" ? "text-orange-500" : "text-gray-400"
-                }`}
-              />
-              <span
-                className={`font-semibold ${
-                  userType === "employer" ? "text-orange-500" : "text-gray-600"
-                }`}
-              >
-                Employer
-              </span>
-            </button>
-          </div>
-
           <form className="space-y-4" onSubmit={handleSignIn}>
             {/* Email Field */}
             <div>
@@ -90,6 +70,9 @@ export function SignIn() {
                 <input
                   type="email"
                   id="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="you@example.com"
                 />
@@ -106,18 +89,24 @@ export function SignIn() {
                 <input
                   type="password"
                   id="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="Enter your password"
                 />
               </div>
             </div>
 
+            {errorMessage ? <p className="text-sm text-red-500">{errorMessage}</p> : null}
+
             {/* Sign In Button */}
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white py-6 text-lg font-semibold"
             >
-              Sign In
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
