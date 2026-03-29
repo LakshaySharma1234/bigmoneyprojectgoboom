@@ -2,11 +2,15 @@ import { getAuthSession } from "../auth/session";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
-async function request(endpoint, options = {}) {
+interface RequestOptions extends RequestInit {
+  headers?: Record<string, string>;
+}
+
+async function request(endpoint: any, options: RequestOptions = {}) {
   const url = `${BASE_URL}${endpoint}`;
   const session = getAuthSession();
 
-  const headers = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...options.headers,
   };
@@ -43,8 +47,8 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
-  get: (endpoint) => request(endpoint),
-  post: (endpoint, data) => request(endpoint, { method: "POST", body: JSON.stringify(data) }),
-  put: (endpoint, data) => request(endpoint, { method: "PUT", body: JSON.stringify(data) }),
-  delete: (endpoint) => request(endpoint, { method: "DELETE" }),
+  get: (endpoint: any) => request(endpoint),
+  post: (endpoint: any, data: any) => request(endpoint, { method: "POST", body: JSON.stringify(data) }),
+  put: (endpoint: any, data: any) => request(endpoint, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (endpoint: any) => request(endpoint, { method: "DELETE" }),
 };
