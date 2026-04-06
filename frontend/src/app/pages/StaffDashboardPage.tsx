@@ -2,9 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { clearAuthSession } from "../auth/session";
 import { Button } from "../components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { AdminOverviewPanel } from "../components/AdminOverviewPanel";
 import { JobList } from "../components/JobList";
 import { WorkerApplicationsList } from "../components/WorkerApplicationsList";
 import { BookingList } from "../components/BookingList";
+import { WorkerAssignmentsList } from "../components/WorkerAssignmentsList";
 import { WorkerProfileForm } from "../components/WorkerProfileForm";
 
 export default function StaffDashboardPage() {
@@ -31,8 +33,10 @@ export default function StaffDashboardPage() {
             <TabsList>
               <TabsTrigger value="browse-jobs">Browse Jobs</TabsTrigger>
               <TabsTrigger value="my-applications">My Applications</TabsTrigger>
+              <TabsTrigger value="my-assignments">My Assignments</TabsTrigger>
               <TabsTrigger value="my-bookings">My Bookings</TabsTrigger>
               <TabsTrigger value="my-profile">My Profile</TabsTrigger>
+              <TabsTrigger value="ops-overview">Ops Overview</TabsTrigger>
             </TabsList>
             <TabsContent value="browse-jobs">
               <div className="bg-white p-8 rounded-lg shadow">
@@ -42,6 +46,11 @@ export default function StaffDashboardPage() {
             <TabsContent value="my-applications">
               <div className="bg-white p-8 rounded-lg shadow">
                 <WorkerApplicationsList />
+              </div>
+            </TabsContent>
+            <TabsContent value="my-assignments">
+              <div className="bg-white p-8 rounded-lg shadow">
+                <WorkerAssignmentsList />
               </div>
             </TabsContent>
             <TabsContent value="my-bookings">
@@ -55,6 +64,11 @@ export default function StaffDashboardPage() {
             <TabsContent value="my-profile">
               <div className="bg-white p-8 rounded-lg shadow">
                 <WorkerProfileForm />
+              </div>
+            </TabsContent>
+            <TabsContent value="ops-overview">
+              <div className="bg-white p-8 rounded-lg shadow">
+                <AdminOverviewPanel />
               </div>
             </TabsContent>
           </Tabs>

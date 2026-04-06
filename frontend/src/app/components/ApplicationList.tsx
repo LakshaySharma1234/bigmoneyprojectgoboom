@@ -26,25 +26,29 @@ export function ApplicationList({ jobId }) {
 
   const handleAccept = async (applicationId, workerId) => {
     try {
-      await api.post("/bookings/", {
+      await api.post("/assignments/create", {
         job_id: jobId,
         worker_id: workerId,
       });
-      // Refresh the list of applications after accepting one
-      const updatedApplications = applications.filter(app => app.id !== applicationId);
+      const updatedApplications = applications.filter((app) => app.id !== applicationId);
       setApplications(updatedApplications);
-      alert("Application accepted and booking created!");
+      alert("Assignment created. The worker now needs to accept it.");
     } catch (error) {
       alert(`Error accepting application: ${error.message}`);
     }
   };
 
   const handleReject = async (applicationId) => {
-    // You would typically have a backend endpoint to update the application status to 'rejected'
-    console.log(`Application ${applicationId} rejected`);
-    const updatedApplications = applications.filter(app => app.id !== applicationId);
-    setApplications(updatedApplications);
-  }
+    try {
+      await api.put(`/applications/${applicationId}/status`, {
+        status: "rejected",
+      });
+      const updatedApplications = applications.filter((app) => app.id !== applicationId);
+      setApplications(updatedApplications);
+    } catch (error) {
+      alert(`Error rejecting application: ${error.message}`);
+    }
+  };
 
   if (isLoading) {
     return <div>Loading applications...</div>;

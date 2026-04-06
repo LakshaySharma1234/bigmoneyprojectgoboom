@@ -22,3 +22,5 @@ class Job(Base):
     client = relationship("User")
     applications = relationship("Application", back_populates="job")
     bookings = relationship("Booking", back_populates="job")
+    assignments = relationship("Assignment", back_populates="job")
+    ratings = relationship("Rating", back_populates="job")

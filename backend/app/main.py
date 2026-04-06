@@ -1,21 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db.database import Base, engine
-from .api.routers import auth, users, jobs, applications, bookings, workers
+from .api.routers import admin, assignments, applications, auth, bookings, jobs, ratings, users, workers
 
 
-from .models import user, worker_profile, job, application, booking
+from .models import application, assignment, booking, job, rating, user, worker_profile
 
 app = FastAPI()
-
-Base.metadata.create_all(bind=engine)
 
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(jobs.router)
 app.include_router(applications.router)
 app.include_router(bookings.router)
+app.include_router(assignments.router)
+app.include_router(ratings.router)
+app.include_router(admin.router)
 app.include_router(workers.router)
 
 

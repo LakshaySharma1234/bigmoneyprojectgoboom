@@ -71,6 +71,11 @@ def list_worker_profiles(
             experience=profile.experience,
             availability=profile.availability,
             profile_picture_url=profile.profile_picture_url,
+            total_jobs=profile.total_jobs or 0,
+            completed_jobs=profile.completed_jobs or 0,
+            no_show_count=profile.no_show_count or 0,
+            avg_rating=float(profile.avg_rating or 0.0),
+            reliability_score=float(profile.reliability_score or 0.0),
         )
         for user, profile in rows
     ]

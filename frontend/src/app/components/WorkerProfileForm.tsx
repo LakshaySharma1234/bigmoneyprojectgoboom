@@ -11,6 +11,8 @@ const defaultProfile = {
   experience: "",
   availability: "",
   profile_picture_url: "",
+  avg_rating: 0,
+  reliability_score: 0,
 };
 
 export function WorkerProfileForm() {
@@ -30,6 +32,8 @@ export function WorkerProfileForm() {
             experience: profile.experience ?? "",
             availability: profile.availability ?? "",
             profile_picture_url: profile.profile_picture_url ?? "",
+            avg_rating: profile.avg_rating ?? 0,
+            reliability_score: profile.reliability_score ?? 0,
           });
         }
       } catch (fetchError) {
@@ -55,7 +59,12 @@ export function WorkerProfileForm() {
     setSuccessMessage("");
 
     try {
-      await api.put("/workers/me/profile", form);
+      await api.put("/workers/me/profile", {
+        skills: form.skills,
+        experience: form.experience,
+        availability: form.availability,
+        profile_picture_url: form.profile_picture_url,
+      });
       setSuccessMessage("Profile saved successfully.");
     } catch (saveError) {
       const message = saveError instanceof Error ? saveError.message : "Unable to save profile.";
@@ -71,6 +80,20 @@ export function WorkerProfileForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
+        <div>
+          <p className="text-sm font-medium text-slate-500">Average Rating</p>
+          <p className="text-2xl font-semibold text-slate-900">
+            {Number(form.avg_rating ?? 0).toFixed(1)} / 5
+          </p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-slate-500">Reliability Badge</p>
+          <p className="text-2xl font-semibold text-emerald-700">
+            {Number(form.reliability_score ?? 0).toFixed(2)}
+          </p>
+        </div>
+      </div>
       <div>
         <Label htmlFor="skills">Skills</Label>
         <Input
