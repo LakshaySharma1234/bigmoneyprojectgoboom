@@ -9,6 +9,7 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { CreateJobForm } from "../components/CreateJobForm";
+import { AdminOverviewPanel } from "../components/AdminOverviewPanel";
 import { MyJobsList } from "../components/MyJobsList";
 import { BookingList } from "../components/BookingList";
 import { api } from "../services/api";
@@ -51,6 +52,7 @@ export default function EmployerDashboardPage() {
               <TabsTrigger value="create-job">Create Job</TabsTrigger>
               <TabsTrigger value="my-jobs">My Jobs</TabsTrigger>
               <TabsTrigger value="bookings">Bookings</TabsTrigger>
+              <TabsTrigger value="ops-overview">Ops Overview</TabsTrigger>
             </TabsList>
             <TabsContent value="create-job">
               <div className="bg-white p-8 rounded-lg shadow">
@@ -65,6 +67,11 @@ export default function EmployerDashboardPage() {
             <TabsContent value="bookings">
               <div className="bg-white p-8 rounded-lg shadow">
                 <BookingList />
+              </div>
+            </TabsContent>
+            <TabsContent value="ops-overview">
+              <div className="bg-white p-8 rounded-lg shadow">
+                <AdminOverviewPanel />
               </div>
             </TabsContent>
           </Tabs>

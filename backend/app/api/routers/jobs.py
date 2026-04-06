@@ -4,7 +4,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from ... import schemas, models, crud
+from ... import crud, models, schemas, services
 from ...dependencies.database import get_db
 from ...dependencies.auth import get_current_user, require_client_role
 
@@ -47,6 +47,33 @@ def read_job(job_id: int, db: Session = Depends(get_db)):
     if db_job is None:
         raise HTTPException(status_code=404, detail="Job not found")
     return db_job
+
+
+@router.get("/{job_id}/assignments", response_model=List[schemas.assignment.Assignment])
+def read_assignments_for_job(
+    job_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(get_current_user),
+):
+    # TODO: restrict to admin role later
+    if current_user.role == "client":
+        return services.assignment_service.get_assignments_for_job(db, job_id, current_user.id)
+
+    job = crud.job.get_job(db, job_id=job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return services.assignment_service.get_assignments_for_job(db, job_id, job.client_id)
+
+
+@router.get("/{job_id}/matches", response_model=List[schemas.worker_profile.WorkerMatch])
+def read_job_matches(
+    job_id: int,
+    limit: int = 5,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(get_current_user),
+):
+    # TODO: restrict to admin role later
+    return services.matching_service.get_best_workers(db, job_id, limit=limit)
 
 
 @router.put("/{job_id}", response_model=schemas.job.Job)

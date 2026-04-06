@@ -11,7 +11,7 @@ export function ApplicationListItem({ application, onAccept, onReject }) {
         <p className="text-sm text-gray-600">Applied on: {new Date(application.applied_at).toLocaleDateString()}</p>
       </div>
       <div className="space-x-2">
-        <Button onClick={onAccept} size="sm">Accept</Button>
+        <Button onClick={onAccept} size="sm">Create Assignment</Button>
         <Button onClick={onReject} size="sm" variant="destructive">Reject</Button>
       </div>
     </div>

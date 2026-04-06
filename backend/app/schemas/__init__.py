@@ -7,3 +7,4 @@ __all__ = [
     "user",
     "worker_profile",
 ]
+from . import admin, assignment, application, booking, job, rating, user, worker_profile

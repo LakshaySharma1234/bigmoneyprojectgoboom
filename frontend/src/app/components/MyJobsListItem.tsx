@@ -8,6 +8,8 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { ApplicationList } from "./ApplicationList";
+import { JobAssignmentsPanel } from "./JobAssignmentsPanel";
+import { MatchingSuggestions } from "./MatchingSuggestions";
 
 export function MyJobsListItem({ job }) {
   return (
@@ -26,10 +28,29 @@ export function MyJobsListItem({ job }) {
         <DialogHeader>
           <DialogTitle>Applications for {job.title}</DialogTitle>
           <DialogDescription>
-            Review the applications for this job and choose the best candidates.
+            Review applications, create assignments, and track worker outcomes.
           </DialogDescription>
         </DialogHeader>
-        <ApplicationList jobId={job.id} />
+        <div className="space-y-6">
+          <section className="space-y-3">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Matching Suggestions
+            </h4>
+            <MatchingSuggestions jobId={job.id} />
+          </section>
+          <section className="space-y-3">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Applications
+            </h4>
+            <ApplicationList jobId={job.id} />
+          </section>
+          <section className="space-y-3">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Assignments
+            </h4>
+            <JobAssignmentsPanel jobId={job.id} />
+          </section>
+        </div>
       </DialogContent>
     </Dialog>
   );
